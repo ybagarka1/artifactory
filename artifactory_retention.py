@@ -26,6 +26,7 @@ else:
 repo_name = repo_name.split(',')
 print(repo_name)
 aql = ArtifactoryPath("{}/artifactory/".format(artifactory_url), auth=('repluser', 'AP49A5SMDpZuQb7e9g7Tn5c45fbUfJkZMzmUSM'))
+
 # multiple repo list
 for r in  repo_name:
     build_numbers = []
@@ -42,14 +43,19 @@ for r in  repo_name:
             zulu_time = zulu_time+'Z'
             utc_dt = datetime.strptime(zulu_time, '%Y-%m-%dT%H:%M:%S.%fZ')
             #last_build_epoch = (utc_dt - datetime(1970, 1, 1)).total_seconds()
-            past_time = utc_dt - timedelta(90)
-            print(past_time)
+            retention_time = utc_dt - timedelta(14)
             #retention_build_epoch =  (past_time - datetime(1970, 1, 1)).total_seconds()
             with open('{}.delete_info'.format(r), 'w') as outfile:
-                outfile.write("latest_build_no={},new_build_date={}".format(build_max_no, past_time))
-created_date = '2018-07-25T07:35:02.847000'
+                outfile.write("latest_build_no={},retention_build_date={}".format(build_max_no, retention_time))
+
 for z in repo_name:
-    artifacts = aql.aql("items.find", {"type":"folder","repo":"{}".format(r),"created": { "$gt": "{}".format(created_date)}})
+    with open('{}.delete_info'.format(z), 'r') as file:
+        ret_time = file.read()
+        build_no, ret_time = ret_time.split(',')
+        ret_time = ret_time.replace(' ','T')
+        ret_time = ret_time.split('=', 1)[1]
+        print("repo_name="+z)
+    artifacts = aql.aql("items.find", {"type":"folder","repo":"{}".format(z),"created": { "$gt": "{}".format(ret_time)}})
     for list in range(len(artifacts)):
         if artifacts[list]["name"] != ".":
             print(artifacts[list]["name"])
