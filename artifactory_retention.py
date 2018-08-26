@@ -16,7 +16,6 @@ repo_name = os.environ['repo_name']
 #retention_period = '8mo'
 retention_period = os.environ['retention_period']
 
-print(repo_name)
 ## to validate the retention period variable
 if "mo" in retention_period or "w" in retention_period:
         print()
@@ -24,7 +23,6 @@ else:
         print("Exiting due to variable declaration issue")
         sys.exit()
 repo_name = repo_name.split(',')
-print(repo_name)
 aql = ArtifactoryPath("{}/artifactory/".format(artifactory_url), auth=('repluser', 'AP49A5SMDpZuQb7e9g7Tn5c45fbUfJkZMzmUSM'))
 
 # multiple repo list
