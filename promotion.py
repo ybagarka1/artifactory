@@ -18,7 +18,13 @@ repo_name = os.environ['repo_name']
 retention_period = os.environ['retention_period']
 # dry run to list the delete info
 dry_run = os.environ['dry_run']
+ret_time = "2018-08-03"
+aql = ArtifactoryPath("{}/artifactory/".format(artifactory_url), auth=('repluser', 'AP49A5SMDpZuQb7e9g7Tn5c45fbUfJkZMzmUSM'))
+artifacts = aql.aql("builds.find", {"name":{"$match": "dev_its-portal-net"},"created": { "$lt": "{}".format(ret_time)}, "promotion.status": {"$eq":"Released"}}, ".include", ["promotion.status"])
+#"promotion.status": {"$ne":"released"}})
+print(artifacts)
 
+'''
 ## to validate the retention period variable
 if int(retention_period) < 90:
         print("retention is under 90 days so exiting")
@@ -81,7 +87,9 @@ for z in repo_name:
         print("No builds to delete")
     print("Delete completed for repo="+z)
 
-''' Below code can be used for total time based conversion
+''' 
+'''
+Below code can be used for total time based conversion
 # logic to list all build numbers from the last created date
 for c in repo_name:
     with open('{}.delete_info'.format(c), 'r') as readfile:
