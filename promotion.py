@@ -20,7 +20,7 @@ retention_period = os.environ['retention_period']
 dry_run = os.environ['dry_run']
 ret_time = "2018-08-03"
 aql = ArtifactoryPath("{}/artifactory/".format(artifactory_url), auth=('repluser', 'AP49A5SMDpZuQb7e9g7Tn5c45fbUfJkZMzmUSM'))
-artifacts = aql.aql("builds.find", {"name":{"$match": "dev_its-portal-net"},"created": { "$lt": "{}".format(ret_time)}, "promotion.status": {"$eq":"Released"}}, ".include", ["promotion.status"])
+artifacts = aql.aql("builds.find", {"name":{"$match": "dev_its-portal-net"},"created": { "$lt": "{}".format(ret_time)}, "promotion.status": {"$ne":"Released"}}, ".include", ["promotion.status"])
 #"promotion.status": {"$ne":"released"}})
 print(artifacts)
 

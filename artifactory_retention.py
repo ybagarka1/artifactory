@@ -68,15 +68,22 @@ for z in repo_name:
             print("exiting...contact Devops-Scrum for the failure...")
             sys.exit()
         print("Deleting artifacts for repo="+z)
-        for list in to_delete_build_list:
-            if dry_run == "true":
-                    print("This is for the promotion status logic")
-                    artifacts = aql.aql("builds.find", {"name":"dev_its-portal-net","created": { "$lt": "{}".format(ret_time)}}, {"promotion.status": {"$ne":"released"}})
-                    print(artifacts)
-            elif dry_run == "false":
-                     print()
-#                    response = requests.delete('{}/artifactory/{}/{}'.format(artifactory_url,z,list),auth=('repluser', 'AP49A5SMDpZuQb7e9g7Tn5c45fbUfJkZMzmUSM'))
-#                    print(response)
+        promotion_repo = z.replace("int-","")
+
+        promotion_artifacts = aql.aql("builds.find", {"name":{"$match": "{}".format(promotion_repo)},"created": { "$lt": "{}".format(ret_time)}, "promotion.status": {"$eq":"Released"}}, ".include", ["promotion.status"])
+        promotion_builds = []
+        for promotion_status in range(len(promotion_artifacts)):
+            promotion_builds.append(int(promotion_artifacts[promotion_status]["build.number"]))
+        promotion_builds = set(promotion_builds)
+        to_delete_build_list = set(to_delete_build_list)
+        final_delete_list = [x for x in to_delete_build_list if x not in promotion_builds]
+        if dry_run == "true":
+            print("This is a dry run")
+            print(final_delete_list)
+        elif dry_run == "false":
+            print()
+#                   response = requests.delete('{}/artifactory/{}/{}'.format(artifactory_url,z,list),auth=('repluser', 'AP49A5SMDpZuQb7e9g7Tn5c45fbUfJkZMzmUSM'))
+#                   print(response)
     except (ValueError, TypeError):
         print("No builds to delete")
     print("Delete completed for repo="+z)
